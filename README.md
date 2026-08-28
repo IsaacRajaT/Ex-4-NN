@@ -1,8 +1,8 @@
 
-<H3>ENTER YOUR NAME</H3>
-<H3>ENTER YOUR REGISTER NO.</H3>
+<H3>ENTER YOUR NAME: ISAAC RAJA T</H3>
+<H3>ENTER YOUR REGISTER NO: 212224040123</H3>
 <H3>EX. NO.4</H3>
-<H3>DATE:</H3>
+<H3>DATE: 20.08.2026</H3>
 <H1 ALIGN =CENTER>Implementation of MLP with Backpropagation for Multiclassification</H1>
 <H3>Aim:</H3>
 To implement a Multilayer Perceptron for Multi classification
@@ -113,14 +113,63 @@ Normalize our dataset.
 7. In order to get the predicted values we call the predict() function on the testing data set.
 
 8. Finally, call the functions confusion_matrix(), and the classification_report() in order to evaluate the performance of our classifier.
+### dataset link:
+https://www.kaggle.com/datasets/hyerdrac/retail-data
 
-<H3>Program:</H3> 
+### Program:  
+```py
+import pandas as pd
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import classification_report, confusion_matrix
 
-Insert your code here
+data = pd.read_csv("customers.csv")
 
+
+data['SignUpDate'] = pd.to_datetime(data['SignUpDate'])
+data['SignupYear'] = data['SignUpDate'].dt.year
+data['SignupMonth'] = data['SignUpDate'].dt.month
+x = data[['Gender', 'Age', 'City', 'Region', 'SignupYear', 'SignupMonth']]
+y = data['CustomerSegment']
+le = preprocessing.LabelEncoder()
+y_encoded = le.fit_transform(y)
+
+categorical_features = ['Gender', 'City', 'Region']
+numerical_features = ['Age', 'SignupYear', 'SignupMonth']
+
+preprocessor = ColumnTransformer(transformers=[('num', StandardScaler(), numerical_features),('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features)])
+
+x_train, x_test, y_train, y_test = train_test_split(x,y_encoded,test_size=0.25,random_state=42,stratify=y_encoded)
+
+x_train = preprocessor.fit_transform(x_train)
+x_test = preprocessor.transform(x_test)
+
+
+mlp = MLPClassifier(hidden_layer_sizes=(10, 10, 10),max_iter=2000,random_state=42)
+
+mlp.fit(x_train, y_train)
+
+
+predictions = mlp.predict(x_test)
+
+customer_predictions = le.inverse_transform(predictions)
+
+print("Predicted Classes:")
+print(customer_predictions)
+
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, predictions))
+
+print("\nClassification Report:")
+print(classification_report(y_test,predictions,target_names=le.classes_))
+```
 <H3>Output:</H3>
 
-Show your results here
+<img width="702" height="827" alt="Screenshot 2026-08-20 115211" src="https://github.com/user-attachments/assets/9b490b2b-df63-4655-960e-3f9dbfebd1d7" />
+
 
 <H3>Result:</H3>
 Thus, MLP is implemented for multi-classification using python.
